@@ -11,7 +11,7 @@ aux4 install aux4/playbook
 ## Quick Start
 
 Create a script file `hello.txt`:
-```
+```text
 set "name" to "World"
 print "Hello {{name}}!"
 ```
@@ -22,7 +22,7 @@ aux4 playbook execute hello.txt
 ```
 
 Output:
-```
+```text
 Hello World!
 ```
 
@@ -42,65 +42,30 @@ Hello World!
 | `eval ... end eval` | Execute nested playbook script |
 | `define {name} ... end define` | Create a custom skill |
 
-## Config.yaml Skills
+## Config Skills
 
-Define custom skills in `config.yaml` that map sentences to shell commands:
+Define custom skills in a YAML file that map sentences to shell commands:
 
 ```yaml
-playbook:
-  skills:
-    - expression: "deploy {app} to {env}"
-      execute: "aux4 deploy run --app ${app} --env ${env}"
-    - expression: "notify {channel} with {message}"
-      execute: "aux4 slack send --channel ${channel} --message ${message}"
+skills:
+  - expression: "deploy {app} to {env}"
+    execute: "aux4 deploy run --app ${app} --env ${env}"
+  - expression: "notify {channel} with {message}"
+    execute: "aux4 slack send --channel ${channel} --message ${message}"
+```
+
+Pass the skills file when executing:
+```bash
+aux4 playbook execute script.txt --configFile skills.yaml
 ```
 
 Then use them in scripts:
-```
+```text
 deploy "my-app" to "production"
 notify "ops" with "deployment complete"
 ```
 
 Variables extracted from the expression (`${app}`, `${env}`) are substituted into the execute command. Context variables use `{{variable}}` syntax.
-
-## Plugin Development
-
-Packages can register skills via the `playbook:skills` profile extension:
-
-1. Depend on `aux4/playbook` in your package `.aux4`
-2. Add a `playbook:skills` profile with a command that outputs YAML
-3. Create a YAML file with skill definitions
-
-```json
-{
-  "dependencies": [
-    "aux4/playbook"
-  ],
-  "profiles": [
-    {
-      "name": "playbook:skills",
-      "commands": [
-        {
-          "name": "my-plugin",
-          "execute": [
-            "cat ${packageDir}/skills/my-plugin.yaml"
-          ],
-          "help": {
-            "text": "My plugin skills"
-          }
-        }
-      ]
-    }
-  ]
-}
-```
-
-Plugin YAML format:
-```yaml
-skills:
-  - expression: "go to {url}"
-    execute: "aux4 browser goto --url ${url}"
-```
 
 ## Variable Syntax
 
@@ -111,8 +76,8 @@ skills:
 
 ## Comments
 
-Lines starting with `!--` are treated as comments:
-```
-!-- This is a comment
+Lines starting with `#` are treated as comments:
+```text
+# This is a comment
 print "hello"
 ```

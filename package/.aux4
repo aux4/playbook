@@ -36,7 +36,7 @@
         {
           "name": "execute",
           "execute": [
-            "node ${packageDir}/lib/aux4-playbook.mjs execute values(file,skills) value(*)"
+            "node ${packageDir}/lib/aux4-playbook.mjs execute values(file,skills,loadSkills) value(*)"
           ],
           "help": {
             "text": "Execute a playbook script file",
@@ -50,6 +50,11 @@
                 "name": "skills",
                 "text": "Skills definitions from config.yaml",
                 "default": "[]"
+              },
+              {
+                "name": "loadSkills",
+                "text": "Comma-separated list of skills to load (default: all)",
+                "default": ""
               }
             ]
           }

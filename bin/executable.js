@@ -35,7 +35,8 @@ if (action === "list") {
 if (action === "execute") {
   const file = args[1];
   const skillsJson = args[2] || "[]";
-  const paramsJson = args[3] || "{}";
+  const loadSkillsArg = args[3] || "";
+  const paramsJson = args[4] || "{}";
 
   if (!file) {
     console.error("No file provided.");
@@ -72,37 +73,23 @@ if (action === "execute") {
     // Not valid JSON, ignore
   }
 
-  // Discover plugin skills via playbook:skills profile
-  try {
-    const pluginOutput = execSync("aux4 playbook skills --help 2>/dev/null", {
-      encoding: "utf-8",
-      stdio: ["pipe", "pipe", "pipe"]
-    }).trim();
+  // Load plugin skills
+  const skillNames = loadSkillsArg
+    ? loadSkillsArg.split(",").map(s => s.trim()).filter(Boolean)
+    : discoverSkills();
 
-    if (pluginOutput) {
-      const stripped = pluginOutput.replace(/\x1b\[[0-9;]*m/g, "");
-      const skillNames = stripped.match(/^\s+(\S+)\s/gm);
-      if (skillNames) {
-        for (const rawName of skillNames) {
-          const name = rawName.trim().split(/\s/)[0];
-          if (name && name !== "skills") {
-            try {
-              const yamlOutput = execSync(`aux4 playbook skills ${name} 2>/dev/null`, {
-                encoding: "utf-8",
-                stdio: ["pipe", "pipe", "pipe"]
-              }).trim();
-              if (yamlOutput) {
-                playbook.registerFromYaml(yamlOutput);
-              }
-            } catch {
-              // Plugin skill failed to load
-            }
-          }
-        }
+  for (const name of skillNames) {
+    try {
+      const yamlOutput = execSync(`aux4 playbook skills ${name} 2>/dev/null`, {
+        encoding: "utf-8",
+        stdio: ["pipe", "pipe", "pipe"]
+      }).trim();
+      if (yamlOutput) {
+        playbook.registerFromYaml(yamlOutput);
       }
+    } catch {
+      // Skill not found or failed to load
     }
-  } catch {
-    // No playbook:skills profile or no plugins installed
   }
 
   let script;
@@ -125,5 +112,26 @@ if (action === "execute") {
     if (params.length > 1) console.error(`  Parameters: ${params.slice(0, -1).join(", ")}`);
     console.error(`  Message: ${message}`);
     process.exit(1);
+  }
+}
+
+function discoverSkills() {
+  try {
+    const output = execSync("aux4 playbook skills --help 2>/dev/null", {
+      encoding: "utf-8",
+      stdio: ["pipe", "pipe", "pipe"]
+    }).trim();
+
+    if (!output) return [];
+
+    const stripped = output.replace(/\x1b\[[0-9;]*m/g, "");
+    const matches = stripped.match(/^\s+(\S+)\s/gm);
+    if (!matches) return [];
+
+    return matches
+      .map(m => m.trim().split(/\s/)[0])
+      .filter(name => name && name !== "skills");
+  } catch {
+    return [];
   }
 }
