@@ -1,7 +1,7 @@
 {
   "scope": "aux4",
   "name": "playbook",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Natural language script execution engine",
   "license": "Apache-2.0",
   "git": "https://github.com/aux4/playbook",
