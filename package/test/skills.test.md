@@ -48,6 +48,29 @@ inside
 /section
 ```
 
+## Skill with params regex
+
+```file:config.yaml
+config:
+  skills:
+    - expression: "repeat {text} {count} times"
+      execute: "echo ${text} x${count}"
+      params:
+        count: \d+
+```
+
+```file:repeat.txt
+repeat "hello" 3 times
+```
+
+```execute
+aux4 playbook execute repeat.txt --config
+```
+
+```expect
+hello x3
+```
+
 ## Nested block expression skill
 
 ```file:config.yaml
