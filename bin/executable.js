@@ -68,7 +68,12 @@ if (action === "execute") {
         yamlLines.push(`    execute: "${skill.execute}"`);
         if (skill.eval) yamlLines.push(`    eval: "${skill.eval}"`);
         if (skill.after) yamlLines.push(`    after: "${skill.after}"`);
-
+        if (skill.params && typeof skill.params === "object") {
+          yamlLines.push(`    params:`);
+          for (const [key, val] of Object.entries(skill.params)) {
+            yamlLines.push(`      ${key}: ${val}`);
+          }
+        }
       }
       playbook.registerFromYaml(yamlLines.join("\n"));
     }
