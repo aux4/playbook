@@ -66,6 +66,9 @@ if (action === "execute") {
       for (const skill of skills) {
         yamlLines.push(`  - expression: "${skill.expression}"`);
         yamlLines.push(`    execute: "${skill.execute}"`);
+        if (skill.eval) yamlLines.push(`    eval: "${skill.eval}"`);
+        if (skill.after) yamlLines.push(`    after: "${skill.after}"`);
+
       }
       playbook.registerFromYaml(yamlLines.join("\n"));
     }
