@@ -1,0 +1,73 @@
+{
+  "scope": "aux4",
+  "name": "playbook",
+  "version": "1.0.0",
+  "description": "Natural language script execution engine",
+  "license": "Apache-2.0",
+  "git": "https://github.com/aux4/playbook",
+  "dependencies": [
+    "aux4/config"
+  ],
+  "tags": [
+    "aux4",
+    "playbook",
+    "natural-language",
+    "scripting",
+    "automation"
+  ],
+  "profiles": [
+    {
+      "name": "main",
+      "commands": [
+        {
+          "name": "playbook",
+          "execute": [
+            "profile:playbook"
+          ],
+          "help": {
+            "text": "Natural language script execution"
+          }
+        }
+      ]
+    },
+    {
+      "name": "playbook",
+      "commands": [
+        {
+          "name": "execute",
+          "execute": [
+            "node ${packageDir}/lib/aux4-playbook.mjs execute values(file,skills) value(*)"
+          ],
+          "help": {
+            "text": "Execute a playbook script file",
+            "variables": [
+              {
+                "name": "file",
+                "text": "Path to the playbook script file",
+                "arg": true
+              },
+              {
+                "name": "skills",
+                "text": "Skills definitions from config.yaml",
+                "default": "[]"
+              }
+            ]
+          }
+        },
+        {
+          "name": "list",
+          "execute": [
+            "node ${packageDir}/lib/aux4-playbook.mjs list"
+          ],
+          "help": {
+            "text": "List all registered skills/commands"
+          }
+        }
+      ]
+    },
+    {
+      "name": "playbook:skills",
+      "commands": []
+    }
+  ]
+}
