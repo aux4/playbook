@@ -80,7 +80,8 @@ if (action === "execute") {
     }).trim();
 
     if (pluginOutput) {
-      const skillNames = pluginOutput.match(/^\s+(\S+)\s/gm);
+      const stripped = pluginOutput.replace(/\x1b\[[0-9;]*m/g, "");
+      const skillNames = stripped.match(/^\s+(\S+)\s/gm);
       if (skillNames) {
         for (const rawName of skillNames) {
           const name = rawName.trim().split(/\s/)[0];
