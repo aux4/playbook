@@ -1,6 +1,6 @@
 #### Description
 
-Lists all registered skills with their expression patterns.
+Lists all registered actions with their expression patterns.
 
 #### Usage
 

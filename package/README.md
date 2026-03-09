@@ -31,32 +31,32 @@ Hello World!
 | Command | Description |
 |---------|-------------|
 | `aux4 playbook execute <file>` | Execute a playbook script file |
-| `aux4 playbook list` | List all registered skills |
+| `aux4 playbook list` | List all registered actions |
 
-## Built-in Skills
+## Built-in Actions
 
-| Skill | Description |
-|-------|-------------|
+| Action | Description |
+|--------|-------------|
 | `set {variable} to {value}` | Store a variable in context |
 | `print {text}` | Output text to stdout |
 | `eval ... end eval` | Execute nested playbook script |
-| `define {name} ... end define` | Create a custom skill |
+| `define {name} ... end define` | Create a custom action |
 
-## Config Skills
+## Config Actions
 
-Define custom skills in a YAML file that map sentences to shell commands:
+Define custom actions in a YAML file that map sentences to shell commands:
 
 ```yaml
-skills:
+actions:
   - expression: "deploy {app} to {env}"
     execute: "aux4 deploy run --app ${app} --env ${env}"
   - expression: "notify {channel} with {message}"
     execute: "aux4 slack send --channel ${channel} --message ${message}"
 ```
 
-Pass the skills file when executing:
+Pass the actions file when executing:
 ```bash
-aux4 playbook execute script.txt --configFile skills.yaml
+aux4 playbook execute script.txt --configFile actions.yaml
 ```
 
 Then use them in scripts:

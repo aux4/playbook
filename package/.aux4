@@ -1,7 +1,7 @@
 {
   "scope": "aux4",
   "name": "playbook",
-  "version": "1.0.7",
+  "version": "2.0.0",
   "description": "Natural language script execution engine",
   "license": "Apache-2.0",
   "git": "https://github.com/aux4/playbook",
@@ -36,7 +36,7 @@
         {
           "name": "execute",
           "execute": [
-            "node ${packageDir}/lib/aux4-playbook.mjs execute values(file,skills,loadSkills) value(*)"
+            "node ${packageDir}/lib/aux4-playbook.mjs execute values(file,actions,loadActions) value(*)"
           ],
           "help": {
             "text": "Execute a playbook script file",
@@ -47,13 +47,13 @@
                 "arg": true
               },
               {
-                "name": "skills",
-                "text": "Skills definitions from config.yaml",
+                "name": "actions",
+                "text": "Action definitions from config.yaml",
                 "default": "[]"
               },
               {
-                "name": "loadSkills",
-                "text": "Comma-separated list of skills to load (default: all)",
+                "name": "loadActions",
+                "text": "Comma-separated list of actions to load (default: all)",
                 "default": ""
               }
             ]
@@ -65,22 +65,22 @@
             "node ${packageDir}/lib/aux4-playbook.mjs list"
           ],
           "help": {
-            "text": "List all registered skills/commands"
+            "text": "List all registered actions"
           }
         },
         {
-          "name": "skills",
+          "name": "actions",
           "execute": [
-            "profile:playbook:skills"
+            "profile:playbook:actions"
           ],
           "help": {
-            "text": "Manage playbook skill plugins"
+            "text": "Manage playbook action plugins"
           }
         }
       ]
     },
     {
-      "name": "playbook:skills",
+      "name": "playbook:actions",
       "commands": []
     }
   ]

@@ -1,10 +1,10 @@
-# Skills
+# Actions
 
-## Config yaml skills
+## Config yaml actions
 
 ```file:config.yaml
 config:
-  skills:
+  actions:
     - expression: "greet {name}"
       execute: "echo Hello ${name}"
 ```
@@ -21,11 +21,11 @@ aux4 playbook execute greet.txt --config
 Hello World
 ```
 
-## Block expression skill with eval
+## Block expression action with eval
 
 ```file:config.yaml
 config:
-  skills:
+  actions:
     - expression: "section {title}\\n{script}\\nend section"
       execute: "echo start:${title}"
       eval: script
@@ -48,11 +48,11 @@ inside
 /section
 ```
 
-## Skill with params regex
+## Action with params regex
 
 ```file:config.yaml
 config:
-  skills:
+  actions:
     - expression: "repeat {text} {count} times"
       execute: "echo ${text} x${count}"
       params:
@@ -71,11 +71,11 @@ aux4 playbook execute repeat.txt --config
 hello x3
 ```
 
-## Nested block expression skill
+## Nested block expression action
 
 ```file:config.yaml
 config:
-  skills:
+  actions:
     - expression: "section {title}\\n{script}\\nend section"
       execute: "echo start:${title}"
       eval: script

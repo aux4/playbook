@@ -113,7 +113,7 @@ visible
 also visible
 ```
 
-## Define and use custom skill
+## Define and use custom action
 
 ```file:define.txt
 define "say hello {name}"
@@ -317,7 +317,7 @@ aux4 playbook execute define-chain.txt
 hello World!
 ```
 
-## Nested custom block skill
+## Nested custom block action
 
 ```file:nested-block.txt
 define "section {title}"

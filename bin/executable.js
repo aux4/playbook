@@ -16,8 +16,8 @@ const playbook = new Playbook();
 install(playbook);
 
 if (action === "list") {
-  playbook.skills.forEach(skill => {
-    let expression = skill.action.expression;
+  playbook.actions.forEach(entry => {
+    let expression = entry.action.expression;
     expression = expression.replace(/\\n/g, "\n");
     expression = expression.replace(/\\s\*/g, "");
     expression = expression.replace(/\\s\+/g, " ");
@@ -34,8 +34,8 @@ if (action === "list") {
 
 if (action === "execute") {
   const file = args[1];
-  const skillsJson = args[2] || "[]";
-  const loadSkillsArg = args[3] || "";
+  const actionsJson = args[2] || "[]";
+  const loadActionsArg = args[3] || "";
   const paramsJson = args[4] || "{}";
 
   if (!file) {
@@ -43,7 +43,7 @@ if (action === "execute") {
     process.exit(3);
   }
 
-  const AUX4_INTERNAL = new Set(["packageDir", "aux4HomeDir", "configDir", "file", "skills"]);
+  const AUX4_INTERNAL = new Set(["packageDir", "aux4HomeDir", "configDir", "file", "actions"]);
   let context = {};
   try {
     const parsed = JSON.parse(paramsJson);
@@ -58,19 +58,19 @@ if (action === "execute") {
     // Not valid JSON, ignore
   }
 
-  // Register skills from config.yaml (passed by aux4/config as JSON)
+  // Register actions from config.yaml (passed by aux4/config as JSON)
   try {
-    const skills = JSON.parse(skillsJson);
-    if (Array.isArray(skills)) {
-      const yamlLines = ["skills:"];
-      for (const skill of skills) {
-        yamlLines.push(`  - expression: "${skill.expression}"`);
-        yamlLines.push(`    execute: "${skill.execute}"`);
-        if (skill.eval) yamlLines.push(`    eval: "${skill.eval}"`);
-        if (skill.after) yamlLines.push(`    after: "${skill.after}"`);
-        if (skill.params && typeof skill.params === "object") {
+    const actions = JSON.parse(actionsJson);
+    if (Array.isArray(actions)) {
+      const yamlLines = ["actions:"];
+      for (const action of actions) {
+        yamlLines.push(`  - expression: "${action.expression}"`);
+        yamlLines.push(`    execute: "${action.execute}"`);
+        if (action.eval) yamlLines.push(`    eval: "${action.eval}"`);
+        if (action.after) yamlLines.push(`    after: "${action.after}"`);
+        if (action.params && typeof action.params === "object") {
           yamlLines.push(`    params:`);
-          for (const [key, val] of Object.entries(skill.params)) {
+          for (const [key, val] of Object.entries(action.params)) {
             yamlLines.push(`      ${key}: ${val}`);
           }
         }
@@ -81,14 +81,14 @@ if (action === "execute") {
     // Not valid JSON, ignore
   }
 
-  // Load plugin skills
-  const skillNames = loadSkillsArg
-    ? loadSkillsArg.split(",").map(s => s.trim()).filter(Boolean)
-    : discoverSkills();
+  // Load plugin actions
+  const actionNames = loadActionsArg
+    ? loadActionsArg.split(",").map(s => s.trim()).filter(Boolean)
+    : discoverActions();
 
-  for (const name of skillNames) {
+  for (const name of actionNames) {
     try {
-      const yamlOutput = execSync(`aux4 playbook skills ${name} 2>/dev/null`, {
+      const yamlOutput = execSync(`aux4 playbook actions ${name} 2>/dev/null`, {
         encoding: "utf-8",
         stdio: ["pipe", "pipe", "pipe"]
       }).trim();
@@ -96,7 +96,7 @@ if (action === "execute") {
         playbook.registerFromYaml(yamlOutput);
       }
     } catch {
-      // Skill not found or failed to load
+      // Action not found or failed to load
     }
   }
 
@@ -123,9 +123,9 @@ if (action === "execute") {
   }
 }
 
-function discoverSkills() {
+function discoverActions() {
   try {
-    const output = execSync("aux4 playbook skills --help 2>/dev/null", {
+    const output = execSync("aux4 playbook actions --help 2>/dev/null", {
       encoding: "utf-8",
       stdio: ["pipe", "pipe", "pipe"]
     }).trim();
@@ -138,7 +138,7 @@ function discoverSkills() {
 
     return matches
       .map(m => m.trim().split(/\s/)[0])
-      .filter(name => name && name !== "skills");
+      .filter(name => name && name !== "actions");
   } catch {
     return [];
   }

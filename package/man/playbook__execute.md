@@ -1,6 +1,6 @@
 #### Description
 
-Executes a playbook script file. Each line is matched against registered skill patterns. Built-in skills, config.yaml skills, and plugin skills are all loaded before execution.
+Executes a playbook script file. Each line is matched against registered action patterns. Built-in actions, config.yaml actions, and plugin actions are all loaded before execution.
 
 #### Usage
 

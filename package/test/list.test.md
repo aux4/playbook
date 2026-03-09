@@ -1,6 +1,6 @@
 # List
 
-## List default skills
+## List default actions
 
 ```execute
 aux4 playbook list
