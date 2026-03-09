@@ -1,34 +1,20 @@
 {
-  "name": "@aux4/facilitator",
-  "version": "2.0.0",
+  "name": "@aux4/playbook",
+  "version": "1.0.0",
   "type": "module",
-  "description": "Natural language as a programming language",
-  "main": "index.js",
+  "description": "Natural language script execution engine",
+  "main": "lib/Playbook.js",
   "scripts": {
-    "test": "node --experimental-vm-modules ./node_modules/.bin/jest --coverage",
-    "format": "prettier --write ."
+    "build": "rollup -c",
+    "test": "aux4 test run"
   },
-  "preferGlobal": true,
-  "bin": {
-    "facilitator": "bin/executable.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/aux4/facilitator.git"
-  },
-  "keywords": [
-    "test",
-    "automation",
-    "story",
-    "behavior"
-  ],
+  "keywords": ["aux4", "playbook", "natural-language", "scripting"],
   "author": "aux4",
   "license": "Apache-2.0",
-  "bugs": {
-    "url": "https://github.com/aux4/facilitator/issues"
-  },
   "devDependencies": {
-    "jest": "^29.7.0",
-    "prettier": "^3.0.0"
+    "@rollup/plugin-commonjs": "^28.0.6",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "rollup": "^4.46.3"
   }
 }
