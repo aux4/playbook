@@ -5,7 +5,7 @@ Natural language script execution engine. Playbook uses regex pattern matching t
 ## Installation
 
 ```bash
-aux4 install aux4/playbook
+aux4 aux4 pkger install aux4/playbook
 ```
 
 ## Quick Start
