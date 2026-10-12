@@ -183,6 +183,42 @@ Lines starting with `#` are treated as comments:
 print "hello"
 ```
 
+A `#` character inside a quoted argument is never treated as a comment — this keeps CSS id
+selectors like `"#submit-button"` intact when used with action plugins such as `aux4/browser`'s:
+
+```text
+expect "#submit-button" to be visible
+```
+
 ## Plugin Actions
 
 Packages can register actions as plugins by adding commands to the `playbook:actions` profile. See `aux4 playbook actions --help` for available plugins.
+
+## Exit Codes and Error Handling
+
+`aux4 playbook execute` exits `0` only when every line of the script ran successfully. It exits
+non-zero and prints a message to stderr when:
+
+- **A line doesn't match any registered action.** A typo, or an action from a `--loadActions`
+  plugin that wasn't loaded, fails the run with `Unknown action: "..."` and the line number,
+  instead of being silently skipped.
+- **An action's underlying command fails or throws**, including a failed assertion from an
+  action like `aux4/browser`'s `expect ... to be visible`. The error shows the failing
+  instruction, its parameters, and the underlying message.
+
+This makes `aux4 playbook execute` safe to use as a pass/fail gate for e2e test scripts — for
+example in `aux4/test`'s `execute:playbook` / `expect:playbook` custom blocks, which run the
+script and fail the test on a non-zero exit code:
+
+````text
+```execute:playbook
+click on "Submit" button
+```
+
+```expect:playbook
+expect "#confirmation" to be visible
+```
+````
+
+Unrecognized-action detection only covers the top-level script; instructions inside a nested
+`eval ... end eval` block are resolved by that block's own recursive execution.
