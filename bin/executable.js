@@ -92,7 +92,11 @@ if (action === "execute") {
         encoding: "utf-8",
         stdio: ["pipe", "pipe", "pipe"]
       }).trim();
-      if (yamlOutput) {
+      // Action files that declare a top-level "context: <name>" key are
+      // context-bound: they are never registered globally, only loaded
+      // lazily (and cached) when a matching "on context <name>" block is
+      // entered during script execution. See lib/Playbook.js splitContextBlocks.
+      if (yamlOutput && !hasTopLevelContext(yamlOutput)) {
         playbook.registerFromYaml(yamlOutput);
       }
     } catch {
@@ -121,6 +125,18 @@ if (action === "execute") {
     console.error(`  Message: ${message}`);
     process.exit(1);
   }
+}
+
+// True when the raw YAML output of a "playbook:actions <name>" plugin
+// declares a top-level "context: <name>" key (before the "actions:" list).
+function hasTopLevelContext(yamlText) {
+  const lines = yamlText.split("\n");
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith("actions:")) break;
+    if (/^context\s*:\s*\S+/.test(trimmed)) return true;
+  }
+  return false;
 }
 
 function discoverActions() {

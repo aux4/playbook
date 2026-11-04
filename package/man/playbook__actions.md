@@ -14,6 +14,19 @@ actions:
     execute: "aux4 browser click --name ${name}"
 ```
 
+#### Context-bound plugins
+
+Add a top-level `context: <name>` key to make the plugin's actions available only inside a matching `on context <name> ... end of context` block in a script, instead of registering them globally at startup:
+
+```yaml
+context: computer
+actions:
+  - expression: "open {app}"
+    execute: "aux4 computer open --app ${app}"
+```
+
+The plugin command is then invoked lazily (and cached per run) the first time a script enters `on context <name>`, never at startup. Mark the command `"private": true` in the package's `.aux4` so it is excluded from `aux4 playbook actions --help` and from the default global-load discovery, while still answering `aux4 playbook actions <name>` directly.
+
 #### Creating a plugin
 
 In your package's `.aux4`, add a `playbook:actions` profile:
