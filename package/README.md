@@ -86,6 +86,58 @@ repeat "hello" 3 times
 
 Output: `hello x3`
 
+### Escaped Parameters: `value()` / `param()`
+
+Hand-writing `'${app}'` in an `execute` string works for simple values, but breaks the moment the
+resolved value itself contains a single quote, a `$(...)` command substitution, or a backtick —
+those are only safe because the author quoted them *manually*. `value()` and `param()` do the
+quoting and escaping for you, using the same semantics as aux4 core's own `value()`/`param()`:
+
+```yaml
+actions:
+  - expression: "type {text} in {app}"
+    execute: "aux4 computer type --text value(text) param(app)"
+```
+
+- `value(x)` — the resolved value, single-quote escaped and wrapped in single quotes. An
+  unset/empty value resolves to `''` (an empty, present argument). Use this when the target command
+  always expects the flag, even with an empty value.
+- `param(x)` — `--x '<escaped value>'`. An **unset or empty** value emits **nothing** — the flag is
+  omitted entirely, not passed as an empty string. Use this for optional flags.
+- `param(x:flag)` — same as `param(x)`, but emits `--flag` instead of `--x` (an alias between the
+  variable name and the flag name).
+
+Whatever the value contains — an apostrophe (`it's done`), a `$(whoami)` substitution, a backtick
+command, a double quote, or extra spaces — it arrives at the target command exactly as typed,
+never interpreted by the shell.
+
+**Lookup order** matches the pattern-vs-context split used throughout playbook: the pattern
+variable captured for that step (e.g. `in {app}`) is checked first, then the block/context
+variable (e.g. `{{app}}` from `with app "..."`). This is what lets one `execute` string serve both
+a per-step override and a block-level default:
+
+```yaml
+actions:
+  - expression: "type {text} in {app}"
+    execute: "aux4 computer type --text value(text) param(app)"
+  - expression: "type {text}"
+    execute: "aux4 computer type --text value(text) param(app)"
+```
+
+```text
+on context computer with app "Calculator"
+  type "123"
+  type "456" in "Finder"
+end of context
+```
+
+The first line's `param(app)` resolves to the block's `Calculator` (no pattern-captured `app` for
+that expression); the second line's per-step `in "Finder"` wins for that line only.
+
+The legacy `${x}` (pattern variable) and `{{x}}` (context variable) substitution described above is
+unaffected and keeps working unchanged — `value()`/`param()` are an additional, opt-in syntax, not
+a replacement.
+
 ### Block Actions
 
 Use `eval` and `after` to create block actions that wrap nested playbook instructions:
@@ -186,3 +238,41 @@ print "hello"
 ## Plugin Actions
 
 Packages can register actions as plugins by adding commands to the `playbook:actions` profile. See `aux4 playbook actions --help` for available plugins.
+
+By default, every plugin's actions are loaded and registered when a script starts executing (as `aux4 playbook actions <name>` output), exactly like `aux4/browser`'s actions. A plugin can opt out of this and become **context-bound** instead — see Context Blocks below.
+
+## Context Blocks
+
+A plugin's action file (YAML output of its `playbook:actions <name>` command) can declare a top-level `context` key:
+
+```yaml
+context: computer
+actions:
+  - expression: "open {app}"
+    execute: "aux4 computer open --app ${app}"
+```
+
+A file with a `context` key is **not** registered globally — its actions are invisible outside a matching block, and the plugin command is never even invoked until needed. Use it inside a script with `on context <name>` / `end of context`:
+
+```text
+on context computer
+  open "Calculator"
+end of context
+```
+
+Behavior:
+
+- **Lazy, cached load.** The first time a script enters `on context <name>`, the engine runs `aux4 playbook actions <name>` to fetch its actions. The result is cached for the rest of that run — a second `on context <name>` block for the same name does not invoke the plugin command again. If the script never enters that block, the plugin command is never invoked at all (not even at startup).
+- **Scoped visibility.** Inside the block, only that context's actions plus the built-ins (`set`, `print`, `define`, `eval`) match. Global (non-context) actions, and any other context's actions, are hidden. A `define` created inside a block only exists inside that block.
+- **Optional block settings.** `on context <name> with <key> "<value>"` (repeatable) sets context variables (`{{key}}`) scoped to the block; they are not visible outside it, and any prior value for the same key is restored on exit:
+
+  ```text
+  on context computer with app "Calculator"
+    click on "7"
+  end of context
+  ```
+
+- **Nesting.** Blocks can nest, including a context nested inside itself. The innermost block's settings and actions win; the outer scope resumes unchanged when a nested block ends.
+- **Unknown context.** Entering `on context <name>` when no plugin provides it fails with a clear error naming the context and the script line, e.g. `Unknown context "widget" (line 3): ...`.
+
+A plugin command normally shows up in `aux4 playbook actions --help`; mark a context-bound plugin command `"private": true` in its package's `.aux4` so it is excluded from that listing (and from the default global-load discovery) while still answering `aux4 playbook actions <name>` directly.
