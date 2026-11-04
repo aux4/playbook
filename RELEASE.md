@@ -21,6 +21,8 @@ actions:
 
 A value containing an apostrophe, a `$(...)` command substitution, a backtick, a double quote, or
 extra spaces arrives at the target command exactly as typed — never interpreted by the shell.
+A resolved value is also never expanded again: a value whose text contains `param(y)`, `value(y)`
+or `${y}` arrives literally instead of pulling in another variable.
 
 Lookup order is pattern-then-context: the pattern variable captured for that step (`in {app}`) is
 checked before the block/context variable (`{{app}}` from `with app "..."`), which is what lets a

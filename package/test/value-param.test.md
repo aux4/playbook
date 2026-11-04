@@ -239,6 +239,42 @@ name=[two] app=[Finder]
 name=[three] app=[Calculator]
 ```
 
+## Resolved values are never re-expanded
+
+### a value containing param(), value() and ${x} text arrives verbatim
+
+```file:noreexpand.txt
+set "secret" to "HUNTER2"
+on context vp with app "Calculator"
+  echo "use param(secret) value(secret) ${secret}"
+end of context
+```
+
+```execute
+aux4 playbook execute noreexpand.txt
+```
+
+```expect
+name=[use param(secret) value(secret) ${secret}] app=[Calculator]
+```
+
+### an app name containing param() text arrives verbatim
+
+```file:noreexpandapp.txt
+set "secret" to "HUNTER2"
+on context vp
+  echo "hello" in "My param(secret) App"
+end of context
+```
+
+```execute
+aux4 playbook execute noreexpandapp.txt
+```
+
+```expect
+name=[hello] app=[My param(secret) App]
+```
+
 ## Legacy ${x} / {{x}} substitution is unchanged
 
 ### an action file still using ${x} and {{x}} directly behaves exactly as before
